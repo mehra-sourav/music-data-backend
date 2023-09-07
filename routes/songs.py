@@ -18,11 +18,14 @@ def get_all_songs():
     try:
         data_df = get_normalized_data()
 
-        # Converting the DataFrame to JSON and returning it
+        # Converting the DataFrame to 2D array with its headers
+        songs_data = [data_df.keys().tolist(), *data_df.values.tolist()]
+
+        # Converting the result to JSON and returning it
         return (
             jsonify(
                 {
-                    "data": data_df.to_dict(orient="records"),
+                    "data": songs_data,
                     "message": "Success",
                     "status_code": 200,
                 }
@@ -58,6 +61,9 @@ def get_song_by_title(title):
     try:
         data_df = get_normalized_data()
 
+        # Keeping a record of the original headers
+        original_headers = data_df.keys().tolist()
+
         # Setting 'title' as index for faster data retrieval
         data_df = data_df.set_index("title")
 
@@ -66,8 +72,18 @@ def get_song_by_title(title):
 
         # If song has been found
         if song is not None:
-            # Including title in final result
-            song = {**song.to_dict(), "title": title}
+            # Converting the Series to 2D and including headers
+            song = [original_headers, song.values.tolist()]
+
+            # Converting the data types of the values to their original data 
+            # types from Numpy data types
+            song[1] = [
+                cell.item() if "item" in dir(cell) else cell for cell in song[1]
+            ]
+
+            # Inserting title at correct place in the values list
+            index_of_title = original_headers.index("title")
+            song[1].insert(index_of_title, title)
 
             return (
                 jsonify({"data": song, "message": "Success", "status_code": 200}),
