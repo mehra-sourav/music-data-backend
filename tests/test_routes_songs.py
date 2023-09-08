@@ -51,5 +51,32 @@ def test_get_song_by_title(api):
     assert "status_code" in data
 
 
+def test_rate_song_by_id(api):
+    client = api.test_client()
+
+    # Testing with an existing id
+    id = "5vYA1mW9g2Coh1HUFUSmlb"
+    payload = {"new_rating": 4.5}
+
+    # MAKES CHANGES TO JSON FILE, SO USE CAUTIOUSLY
+    response = client.patch(f"/title/{id}/rate", json=payload)
+
+    assert response.status_code == 200
+    data = response.get_json()
+
+    assert "message" in data
+    assert "status_code" in data
+
+    # Testing with a non-existing id
+    non_existing_id = "5vYA1mW9g2Cosh1HUFaaaaUSmlb"
+    response = client.patch(f"/title/{non_existing_id}/rate", json=payload)
+
+    assert response.status_code == 404
+    data = response.get_json()
+
+    assert "message" in data
+    assert "status_code" in data
+
+
 if __name__ == "__main__":
     pytest.main()

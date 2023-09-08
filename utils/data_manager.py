@@ -1,5 +1,6 @@
 import os, json
 import pandas as pd
+import numpy as np
 
 # Creating path to playlist.json
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +27,7 @@ def get_normalized_data():
     # Creating a dataframe with the columns extracted earlier and the data
     # from the playlist JSON file
     df = pd.DataFrame(data, columns=columns)
+    df = df.replace({np.nan: None})
 
     return df
 
@@ -39,4 +41,4 @@ def set_normalized_data(data):
     """
     # Loading the JSON data from the file
     with open(file_path, "w") as file:
-        json.dump(data, file)
+        file.write(data)
